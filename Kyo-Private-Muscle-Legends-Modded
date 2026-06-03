@@ -1,17 +1,13 @@
--- Load the Rayfield UI Library
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/IVRzHxZ/Kyo-UI-Library/refs/heads/main/Kyo-UI-LibraryxPrivate", true))()
 
--- Create Window
-local Window = Rayfield:CreateWindow({
-   Name = "Kyo private",
-   LoadingTitle = "Loading Automation Engine...",
-   LoadingSubtitle = "by HyperTrain",
-   ConfigurationSaving = { Enabled = false },
-   KeySystem = false
+	local window = library:AddWindow("Kyo-Private-Cracked", {
+	main_color = Color3.fromRGB(0, 0, 0), -- Color
+	min_size = Vector2.new(600, 1000), -- Size of the gui
+	can_resize = false, -- true or false
 })
 
 -- Create Tab
-local MainTab = Window:CreateTab("Automation", 4483362458)
+local MainTab = window:AddTab("Farm")
 
 -- Game Services & Remotes Setup
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -47,13 +43,13 @@ local function autoEquipTool(toolName)
     end
 end
 
--- Screen Pop-up Blocker
+-- Screen Pop-up Blocker (Targets "imgui" to protect Elerium elements)
 task.spawn(function()
     while true do
         if getgenv().HidePopupsActive or getgenv().HyperLiftActive or getgenv().HyperDeadliftActive then
             pcall(function()
                 for _, ui in ipairs(PlayerGui:GetChildren()) do
-                    if ui:IsA("ScreenGui") and ui.Name ~= "Rayfield" then
+                    if ui:IsA("ScreenGui") and ui.Name ~= "imgui" and ui.Name ~= "Elerium" then
                         local mainPopup = ui:FindFirstChild("PopupFrame") or ui:FindFirstChild("Confirmation") or ui:FindFirstChild("MainPopup")
                         if mainPopup and mainPopup.Visible == true then
                             mainPopup.Visible = false
@@ -66,146 +62,434 @@ task.spawn(function()
     end
 end)
 
--- 1. Auto Lift Toggle
-MainTab:CreateToggle({
-   Name = "Auto Lift Weights",
-   CurrentValue = false,
-   Callback = function(state)
-        getgenv().HyperLiftActive = state
-        if getgenv().HyperLiftActive then
-            task.spawn(function()
-                while getgenv().HyperLiftActive do
-                    autoEquipTool("Weight")
+-- 1. Auto Lift Switch
+MainTab:AddSwitch("Auto Lift Weights", function(state)
+    getgenv().HyperLiftActive = state
+    if getgenv().HyperLiftActive then
+        task.spawn(function()
+            while getgenv().HyperLiftActive do
+                autoEquipTool("Weight")
+                for i = 1, batchSize do
+                    if not getgenv().HyperLiftActive then break end
+                    task.spawn(function() ActivateTool:InvokeServer("Weight") end)
+                end
+                task.wait(waitTime > 0 and waitTime or nil)
+            end
+        end)
+    end
+end)
+
+-- 2. Auto Punch Switch
+MainTab:AddSwitch("Auto Punch Fists", function(state)
+    getgenv().HyperPunchActive = state
+    if getgenv().HyperPunchActive then
+        task.spawn(function()
+            while getgenv().HyperPunchActive do
+                autoEquipTool("Fists")
+                
+                local char = LocalPlayer.Character
+                if char then
+                    local hum = char:FindFirstChildOfClass("Humanoid")
+                    local anim = hum and hum:FindFirstChildOfClass("Animator")
+                    if anim then
+                        local animInstance = Instance.new("Animation")
+                        animInstance.AnimationId = "rbxassetid://10461623916"
+                        local track = anim:LoadAnimation(animInstance)
+                        track:Play()
+                    end
+                end
+
+                for i = 1, batchSize do
+                    if not getgenv().HyperPunchActive then break end
+                    task.spawn(function() ActivateTool:InvokeServer("Fists") end)
+                end
+                task.wait(waitTime > 0 and waitTime or nil)
+            end
+        end)
+    end
+end)
+
+-- 3. FIXED Muscle King Gym Deadlift Switch
+MainTab:AddSwitch("Auto Deadlift (Muscle King)", function(state)
+    getgenv().HyperDeadliftActive = state
+    if getgenv().HyperDeadliftActive then
+        task.spawn(function()
+            local success, targetMachine = pcall(function()
+                return workspace:WaitForChild("Machines"):WaitForChild("Deadlifts"):WaitForChild("Muscle King Gym"):WaitForChild("5.1")
+            end)
+
+            if success and targetMachine then
+                MachineRemote:FireServer("Interact", targetMachine)
+                task.wait(0.1)
+
+                while getgenv().HyperDeadliftActive do
                     for i = 1, batchSize do
-                        if not getgenv().HyperLiftActive then break end
-                        task.spawn(function() ActivateTool:InvokeServer("Weight") end)
+                        if not getgenv().HyperDeadliftActive then break end
+                        task.spawn(function() 
+                            MachineRemote:FireServer("Rep", targetMachine) 
+                        end)
                     end
                     task.wait(waitTime > 0 and waitTime or nil)
                 end
-            end)
-        end
-   end,
-})
+            end
+        end)
+    end
+end)
 
--- 2. Auto Punch Toggle
-MainTab:CreateToggle({
-   Name = "Auto Punch Fists",
-   CurrentValue = false,
-   Callback = function(state)
-        getgenv().HyperPunchActive = state
-        if getgenv().HyperPunchActive then
-            task.spawn(function()
-                while getgenv().HyperPunchActive do
-                    autoEquipTool("Fists")
-                    
-                    local char = LocalPlayer.Character
-                    if char then
-                        local hum = char:FindFirstChildOfClass("Humanoid")
-                        local anim = hum and hum:FindFirstChildOfClass("Animator")
-                        if anim then
-                            local animInstance = Instance.new("Animation")
-                            animInstance.AnimationId = "rbxassetid://10461623916"
-                            local track = anim:LoadAnimation(animInstance)
-                            track:Play()
+-- Create Tab
+local _Rebirthing = window:AddTab("Rebirths")
+
+-- 1. Auto Lift Switch
+_Rebirthing:AddSwitch("Auto Lift Weights", function(state)
+    getgenv().HyperLiftActive = state
+    if getgenv().HyperLiftActive then
+        task.spawn(function()
+            while getgenv().HyperLiftActive do
+                autoEquipTool("Weight")
+                for i = 1, batchSize do
+                    if not getgenv().HyperLiftActive then break end
+                    task.spawn(function() ActivateTool:InvokeServer("Weight") end)
+                end
+                task.wait(waitTime > 0 and waitTime or nil)
+            end
+        end)
+    end
+end)
+
+_Rebirthing:AddSwitch("Auto size 2", function(Value)
+    if Value then
+        local args = {
+            "Change_Size",
+            2
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Remotes"):WaitForChild("Change_Setting"):FireServer(unpack(args))
+    end
+end)
+
+-- Lock Position Switch
+_Rebirthing:AddSwitch('Lock Position', function(p39)
+    lockPosition = p39
+    local _LocalPlayer3 = game.Players.LocalPlayer
+    local v41 = _LocalPlayer3.Character or _LocalPlayer3.CharacterAdded:Wait()
+    local _Humanoid2 = v41:FindFirstChild('Humanoid')
+    local _HumanoidRootPart = v41:FindFirstChild('HumanoidRootPart')
+    
+    if p39 and (_Humanoid2 and _HumanoidRootPart) then
+        savedPosition = _HumanoidRootPart.Position
+        _Humanoid2.WalkSpeed = 0
+        task.spawn(function()
+            while lockPosition do
+                if _HumanoidRootPart and (_HumanoidRootPart.Position - savedPosition).magnitude > 0.1 then
+                    _HumanoidRootPart.CFrame = CFrame.new(savedPosition)
+                end
+                task.wait(0.05)
+            end
+        end)
+    elseif _Humanoid2 then
+        _Humanoid2.WalkSpeed = 16
+    end
+end):Set(false)
+
+-- Auto Teleport to King Switch
+_Rebirthing:AddSwitch('Auto Teleport to King', function(p44)
+    if p44 then
+        teleportLoop = task.spawn(function()
+            while task.wait(0) do
+                if game.Players.LocalPlayer.Character then
+                    game.Players.LocalPlayer.Character:MoveTo(Vector3.new(-8646, 17, -5738))
+                end
+            end
+        end)
+    elseif teleportLoop then
+        task.cancel(teleportLoop)
+        teleportLoop = nil
+    end
+end):Set(false)
+
+-- 4. Auto Rebirth Switch
+_Rebirthing:AddSwitch("Auto Rebirths", function(state)
+    getgenv().HyperRebirthActive = state
+    if getgenv().HyperRebirthActive then
+        task.spawn(function()
+            while getgenv().HyperRebirthActive do
+                RebirthRemote:FireServer()
+                task.wait(1)
+            end
+        end)
+    end
+end)
+
+_Rebirthing:AddSwitch('Fast Rebirth', function(p52)
+    fastRebirth = p52
+    if fastRebirth then
+        task.spawn(function()
+            local _ReplicatedStorage = game:GetService('ReplicatedStorage')
+            local _LocalPlayer4 = game:GetService('Players').LocalPlayer
+            
+            local function u64()
+                local _petsFolder = _LocalPlayer4:FindFirstChild('petsFolder')
+                if _petsFolder then
+                    for _, v59 in pairs(_petsFolder:GetChildren()) do
+                        if v59:IsA('Folder') then
+                            for _, v63 in pairs(v59:GetChildren()) do
+                                _ReplicatedStorage.rEvents.equipPetEvent:FireServer('unequipPet', v63)
+                            end
                         end
                     end
-
-                    for i = 1, batchSize do
-                        if not getgenv().HyperPunchActive then break end
-                        task.spawn(function() ActivateTool:InvokeServer("Fists") end)
-                    end
-                    task.wait(waitTime > 0 and waitTime or nil)
                 end
-            end)
-        end
-   end,
-})
-
--- 3. FIXED Muscle King Gym Deadlift Toggle
-MainTab:CreateToggle({
-   Name = "Auto Deadlift (Muscle King)",
-   CurrentValue = false,
-   Callback = function(state)
-        getgenv().HyperDeadliftActive = state
-        if getgenv().HyperDeadliftActive then
-            task.spawn(function()
-                -- Wait for the machine target to load in workspace safely
-                local success, targetMachine = pcall(function()
-                    return workspace:WaitForChild("Machines"):WaitForChild("Deadlifts"):WaitForChild("Muscle King Gym"):WaitForChild("5.1")
-                end)
-
-                if success and targetMachine then
-                    -- Send the mandatory Interact signal first to use the machine
-                    MachineRemote:FireServer("Interact", targetMachine)
-                    task.wait(0.1) -- Small delay to confirm server registered the interaction
-
-                    -- Spam loop for Rep signals
-                    while getgenv().HyperDeadliftActive do
-                        for i = 1, batchSize do
-                            if not getgenv().HyperDeadliftActive then break end
-                            task.spawn(function() 
-                                MachineRemote:FireServer("Rep", targetMachine) 
-                            end)
+                task.wait(0.1)
+            end
+            
+            local function v70(p65)
+                u64()
+                task.wait(0.01)
+                if _LocalPlayer4:FindFirstChild('petsFolder') and _LocalPlayer4.petsFolder:FindFirstChild('Unique') then
+                    for _, v69 in pairs(_LocalPlayer4.petsFolder.Unique:GetChildren()) do
+                        if v69.Name == p65 then
+                            _ReplicatedStorage.rEvents.equipPetEvent:FireServer('equipPet', v69)
                         end
-                        task.wait(waitTime > 0 and waitTime or nil)
                     end
-                else
-                    Rayfield:Notify({
-                        Name = "Error",
-                        Content = "Muscle King Gym 5.1 Deadlift machine not found!",
-                        Duration = 5
-                    })
                 end
-            end)
-        end
-   end,
-})
-
--- 4. Auto Rebirth Toggle
-MainTab:CreateToggle({
-   Name = "Auto Rebirth",
-   CurrentValue = false,
-   Callback = function(state)
-        getgenv().HyperRebirthActive = state
-        if getgenv().HyperRebirthActive then
-            task.spawn(function()
-                while getgenv().HyperRebirthActive do
-                    RebirthRemote:FireServer()
-                    task.wait(1)
+            end
+            
+            local function v78(p72)
+                local v73 = workspace:FindFirstChild('machinesFolder') and workspace.machinesFolder:FindFirstChild(p72)
+                if not v73 then
+                    for _, v77 in pairs(workspace:GetChildren()) do
+                        if v77:IsA('Folder') and v77.Name:find('machines') then
+                            v73 = v77:FindFirstChild(p72)
+                            if v73 then break end
+                        end
+                    end
                 end
-            end)
-        end
-   end,
-})
+                return v73
+            end
+            
+            local function v80()
+                local _VirtualInputManager = game:GetService('VirtualInputManager')
+                _VirtualInputManager:SendKeyEvent(true, 'E', false, game)
+                task.wait(0.1)
+                _VirtualInputManager:SendKeyEvent(false, 'E', false, game)
+            end
+            
+            while fastRebirth do
+                local v81 = 10000 + 5000 * _LocalPlayer4.leaderstats.Rebirths.Value
+                if _LocalPlayer4:FindFirstChild('ultimatesFolder') and _LocalPlayer4.ultimatesFolder:FindFirstChild('Golden Rebirth') then
+                    local _Value = _LocalPlayer4.ultimatesFolder['Golden Rebirth'].Value
+                    v81 = math.floor(v81 * (1 - _Value * 0.1))
+                end
+                
+                u64()
+                task.wait(0.1)
+                v70('Swift Samurai')
+                
+                while _LocalPlayer4.leaderstats.Strength.Value < v81 do
+                    for _ = 1, 15 do
+                        _LocalPlayer4.muscleEvent:FireServer('rep')
+                    end
+                    task.wait()
+                end
+                
+                u64()
+                task.wait(0.1)
+                v70('Tribal Overlord')
+                
+                local _JungleBarLift = v78('Jungle Bar Lift')
+                if _JungleBarLift and _JungleBarLift:FindFirstChild('interactSeat') then
+                    _LocalPlayer4.Character.HumanoidRootPart.CFrame = _JungleBarLift.interactSeat.CFrame * CFrame.new(0, 3, 0)
+                    repeat
+                        task.wait(0.1)
+                        v80()
+                    until _LocalPlayer4.Character.Humanoid.Sit
+                end
+                
+                local _Value2 = _LocalPlayer4.leaderstats.Rebirths.Value
+                repeat
+                    _ReplicatedStorage.rEvents.rebirthRemote:InvokeServer('rebirthRequest')
+                    task.wait(0.1)
+                until _Value2 < _LocalPlayer4.leaderstats.Rebirths.Value
+                task.wait()
+            end
+        end)
+    end
+end):Set(false)
 
--- 5. Popups Blocker Toggle
-MainTab:CreateToggle({
-   Name = "Hide Game Popups",
-   CurrentValue = false,
-   Callback = function(state)
-        getgenv().HidePopupsActive = state
-   end,
-})
+local _Teleport = window:AddTab('Teleport')
 
--- 6. Anti-Lag Performance Toggle
-MainTab:CreateToggle({
-   Name = "Anti-Lag: Safe Mode",
-   CurrentValue = true,
-   Callback = function(state)
-        getgenv().SmoothMode = state
-        if getgenv().SmoothMode then
-            batchSize = 15
-            waitTime = 0.01
+-- Global Teleport Selection Variables
+local selectedLocationCFrame = nil
+local locations = {
+    ['Spawn']            = CFrame.new(0, 0, 0),
+    ['Tiny Island']           = CFrame.new(-39.0918, 10.0, 1886.1307),
+    ['Frost Island']          = CFrame.new(-2623.0222, 10.0, -409.0733),
+    ['Mythical Island']       = CFrame.new(2250.7780, 10.0, 1073.2266),
+    ['Infernal Island']       = CFrame.new(-6758.9638, 10.0, -1284.9187),
+    ['Legend Island']         = CFrame.new(4603.2817, 995.0, -3897.8657),
+    ['Muscle King']           = CFrame.new(-8625.9287, 20.0, -5730.4721),
+    ['Ancient Jungle Island'] = CFrame.new(-8642.2529, 10.0, 2380.5065)
+}
+
+-- Dropdown Configuration
+local _SelectTeleport = _Teleport:AddDropdown('Select Teleport', function(choice)
+    selectedLocationCFrame = locations[choice]
+end)
+
+-- Add Options to Dropdown Layout
+_SelectTeleport:Add('Spawn')
+_SelectTeleport:Add('Tiny Island')
+_SelectTeleport:Add('Frost Island')
+_SelectTeleport:Add('Mythical Island')
+_SelectTeleport:Add('Infernal Island')
+_SelectTeleport:Add('Legend Island')
+_SelectTeleport:Add('Muscle King')
+_SelectTeleport:Add('Ancient Jungle Island')
+
+-- Teleport Execution Button
+_Teleport:AddButton('Teleport Now', function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        if selectedLocationCFrame then
+            -- Wipe local physics momentum to block server rubberbanding
+            character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+            character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+            
+            -- Teleport client assembly safely
+            character:PivotTo(selectedLocationCFrame)
         else
-            batchSize = 45
-            waitTime = 0
+            warn('No location selected inside dropdown menu.')
         end
-   end,
-})
+    else
+        warn('Character root structure not fully loaded.')
+    end
+end)
 
-Rayfield:Notify({
-   Name = "Script Loaded!",
-   Content = "HyperTrain Muscle Legends is ready targeting Muscle King.",
-   Duration = 5,
-   Image = 4483362458,
-})
+-- Create Tab
+local _MiscV2 = window:AddTab("Misc")
+
+local originals = {
+    guis = {},
+    lighting = {},
+    particles = {},
+    lights = {},
+    settings = {}
+}
+
+_MiscV2:AddSwitch('Hide All frame', function(p1270)
+    if p1270 then
+        -- === TURN ON OPTIMIZATION ===
+        
+        -- Optimize PlayerGuis and save their original state
+        local _PlayerGui4 = game.Players.LocalPlayer:WaitForChild('PlayerGui')
+        for _, v1275 in pairs(_PlayerGui4:GetChildren()) do
+            if v1275:IsA('ScreenGui') then
+                originals.guis[v1275] = v1275.Enabled
+                if v1275.Enabled then
+                    v1275.Enabled = false
+                end
+            end
+        end
+
+        -- Save and set Global Engine Settings
+        originals.settings.QualityLevel = settings().Rendering.QualityLevel
+        originals.settings.PhysicsEnvironmentalThrottle = settings().Physics.PhysicsEnvironmentalThrottle
+        originals.settings.MeshPartDetailLevel = settings().Rendering.MeshPartDetailLevel
+        originals.settings.AllowSleep = settings().Physics.AllowSleep
+        originals.settings.ForceCSGv2 = settings().Physics.ForceCSGv2
+        originals.settings.EagerBulkExecution = settings().Rendering.EagerBulkExecution
+        originals.settings.NetworkOwnershipRule = settings().Physics.NetworkOwnershipRule
+        originals.settings.IncomingReplicationLag = settings().Network.IncomingReplicationLag
+
+        settings().Rendering.QualityLevel = 1
+        settings().Physics.PhysicsEnvironmentalThrottle = 1
+        settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
+        settings().Physics.AllowSleep = true
+        settings().Physics.ForceCSGv2 = false
+        settings().Rendering.EagerBulkExecution = true
+        settings().Physics.NetworkOwnershipRule = Enum.NetworkOwnershipRule.Manual
+        settings().Network.IncomingReplicationLag = 0
+        game:GetService('NetworkClient'):SetOutgoingKBPSLimit(100) -- Note: Reverting KBPS limit can crash/freeze if not handled by network client, usually left as is.
+
+        -- Save and set Lighting
+        local _Lighting5 = game:GetService('Lighting')
+        originals.lighting.GlobalShadows = _Lighting5.GlobalShadows
+        originals.lighting.FogEnd = _Lighting5.FogEnd
+        originals.lighting.Brightness = _Lighting5.Brightness
+
+        _Lighting5.GlobalShadows = false
+        _Lighting5.FogEnd = 9000000000
+        _Lighting5.Brightness = 0
+
+        -- Save and optimize Workspace effects
+        for _, v1280 in pairs(game:GetDescendants()) do
+            if v1280:IsA('ParticleEmitter') or v1280:IsA('Trail') then
+                originals.particles[v1280] = v1280.Lifetime
+                v1280.Lifetime = NumberRange.new(0)
+            elseif v1280:IsA('Fire') or v1280:IsA('SpotLight') or v1280:IsA('Smoke') or v1280:IsA('Sparkles') then
+                originals.lights[v1280] = v1280.Enabled
+                v1280.Enabled = false
+            end
+        end
+    else
+        -- === TURN OFF / RESTORE ORIGINAL SETTINGS ===
+        
+        -- Restore PlayerGuis
+        for gui, originalEnabled in pairs(originals.guis) do
+            if gui and gui.Parent then
+                gui.Enabled = originalEnabled
+            end
+        end
+        originals.guis = {}
+
+        -- Restore Global Engine Settings
+        if originals.settings.QualityLevel then
+            settings().Rendering.QualityLevel = originals.settings.QualityLevel
+            settings().Physics.PhysicsEnvironmentalThrottle = originals.settings.PhysicsEnvironmentalThrottle
+            settings().Rendering.MeshPartDetailLevel = originals.settings.MeshPartDetailLevel
+            settings().Physics.AllowSleep = originals.settings.AllowSleep
+            settings().Physics.ForceCSGv2 = originals.settings.ForceCSGv2
+            settings().Rendering.EagerBulkExecution = originals.settings.EagerBulkExecution
+            settings().Physics.NetworkOwnershipRule = originals.settings.NetworkOwnershipRule
+            settings().Network.IncomingReplicationLag = originals.settings.IncomingReplicationLag
+        end
+        originals.settings = {}
+
+        -- Restore Lighting
+        local _Lighting5 = game:GetService('Lighting')
+        if originals.lighting.GlobalShadows ~= nil then
+            _Lighting5.GlobalShadows = originals.lighting.GlobalShadows
+            _Lighting5.FogEnd = originals.lighting.FogEnd
+            _Lighting5.Brightness = originals.lighting.Brightness
+        end
+        originals.lighting = {}
+
+        -- Restore Particle Emitters and Trails
+        for effect, originalLifetime in pairs(originals.particles) do
+            if effect and effect.Parent then
+                effect.Lifetime = originalLifetime
+            end
+        end
+        originals.particles = {}
+
+        -- Restore Lights, Fire, and Smoke
+        for light, originalEnabled in pairs(originals.lights) do
+            if light and light.Parent then
+                light.Enabled = originalEnabled
+            end
+        end
+        originals.lights = {}
+    end
+end)
+
+-- Create Tab
+local egg = window:AddTab("Eggs")
+
+egg:AddSwitch("Open Galaxy Oracle Crystal", function(Value)
+    if Value then
+        local args = {
+            "Galaxy Oracle Crystal"
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Functions"):WaitForChild("Open_Crystal"):InvokeServer(unpack(args))
+    end
+end)
