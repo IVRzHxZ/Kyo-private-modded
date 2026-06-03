@@ -86,18 +86,6 @@ MainTab:AddSwitch("Auto Punch Fists", function(state)
         task.spawn(function()
             while getgenv().HyperPunchActive do
                 autoEquipTool("Fists")
-                
-                local char = LocalPlayer.Character
-                if char then
-                    local hum = char:FindFirstChildOfClass("Humanoid")
-                    local anim = hum and hum:FindFirstChildOfClass("Animator")
-                    if anim then
-                        local animInstance = Instance.new("Animation")
-                        animInstance.AnimationId = "rbxassetid://10461623916"
-                        local track = anim:LoadAnimation(animInstance)
-                        track:Play()
-                    end
-                end
 
                 for i = 1, batchSize do
                     if not getgenv().HyperPunchActive then break end
