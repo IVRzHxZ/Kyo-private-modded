@@ -483,7 +483,7 @@ _MiscV2:AddSwitch('Hide All frame', function(p1270)
 end)
 
 -- Add Button to Elerium UI
-tab:AddButton("Anti-Lag", function()
+_MiscV2:AddButton("Anti-Lag", function()
     -- Services
     local debris = game:GetService("Debris")
     local lighting = game:GetService("Lighting")
