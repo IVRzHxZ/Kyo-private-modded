@@ -539,6 +539,7 @@ _MiscV2:AddButton('Anti Lag (Advanced)', function()
 		end
 		print('Anti-Lag Activated: Textures, lighting, sounds, and effects removed.')
 	end)
+
 	_MiscV2:AddButton('Ultra FPS Booster', function()
 		settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
 		settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
@@ -634,54 +635,6 @@ _MiscV2:AddButton('Anti Lag (Advanced)', function()
 		end
 		print('Ultra FPS Boost applied. Maximum rendering and resource optimization complete.')
 	end)
-	_MiscV2:AddButton('Full Optimization', function()
-		local v1257, v1258, v1259 = pairs(game:GetDescendants())
-		while true do
-			local v1260
-			v1259, v1260 = v1257(v1258, v1259)
-			if v1259 == nil then
-				break
-			end
-			if v1260:IsA('ParticleEmitter') or (v1260:IsA('Smoke') or (v1260:IsA('Fire') or v1260:IsA('Sparkles'))) then
-				v1260.Enabled = false
-			end
-		end
-		local _Lighting4 = game:GetService('Lighting')
-		_Lighting4.GlobalShadows = false
-		_Lighting4.FogEnd = 9000000000
-		_Lighting4.Brightness = 0
-		settings().Rendering.QualityLevel = 1
-		local v1262, v1263, v1264 = pairs(game:GetDescendants())
-		while true do
-			local v1265
-			v1264, v1265 = v1262(v1263, v1264)
-			if v1264 == nil then
-				break
-			end
-			if v1265:IsA('Decal') or v1265:IsA('Texture') then
-				v1265.Transparency = 1
-			elseif v1265:IsA('BasePart') and not v1265:IsA('MeshPart') then
-				v1265.Material = Enum.Material.SmoothPlastic
-				if not (v1265.Parent and (v1265.Parent:FindFirstChild('Humanoid') or v1265.Parent.Parent:FindFirstChild('Humanoid'))) then
-					v1265.Reflectance = 0
-				end
-			end
-		end
-		local v1266, v1267, v1268 = pairs(_Lighting4:GetChildren())
-		while true do
-			local v1269
-			v1268, v1269 = v1266(v1267, v1268)
-			if v1268 == nil then
-				break
-			end
-			if v1269:IsA('BlurEffect') or (v1269:IsA('SunRaysEffect') or (v1269:IsA('ColorCorrectionEffect') or (v1269:IsA('BloomEffect') or v1269:IsA('DepthOfFieldEffect')))) then
-				v1269.Enabled = false
-			end
-		end
-		game:GetService('StarterGui'):SetCore('SendNotification', {
-			Title = 'Optimization',
-			Text = 'Full optimization applied!',
-			Duration = 5,
 
 -- Create Tab
 local egg = window:AddTab("Eggs")
