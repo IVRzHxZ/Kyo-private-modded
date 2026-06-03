@@ -1,0 +1,211 @@
+-- Load the Rayfield UI Library
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Create Window
+local Window = Rayfield:CreateWindow({
+   Name = "Kyo private",
+   LoadingTitle = "Loading Automation Engine...",
+   LoadingSubtitle = "by HyperTrain",
+   ConfigurationSaving = { Enabled = false },
+   KeySystem = false
+})
+
+-- Create Tab
+local MainTab = Window:CreateTab("Automation", 4483362458)
+
+-- Game Services & Remotes Setup
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local Events = ReplicatedStorage:WaitForChild("Events")
+local ActivateTool = Events:WaitForChild("Functions"):WaitForChild("Activate_Tool")
+local MachineRemote = Events:WaitForChild("Remotes"):WaitForChild("Machine")
+local RebirthRemote = Events:WaitForChild("Remotes"):WaitForChild("Rebirth")
+
+-- Core States
+getgenv().HyperLiftActive = false
+getgenv().HyperPunchActive = false
+getgenv().HyperDeadliftActive = false
+getgenv().HyperRebirthActive = false
+getgenv().HidePopupsActive = false
+getgenv().SmoothMode = true
+
+local batchSize = 15
+local waitTime = 0.01
+
+-- Auto-Equip Helper Function
+local function autoEquipTool(toolName)
+    local character = LocalPlayer.Character
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if character and not character:FindFirstChild(toolName) then
+        if backpack then
+            local tool = backpack:FindFirstChild(toolName)
+            if tool then tool.Parent = character end
+        end
+    end
+end
+
+-- Screen Pop-up Blocker
+task.spawn(function()
+    while true do
+        if getgenv().HidePopupsActive or getgenv().HyperLiftActive or getgenv().HyperDeadliftActive then
+            pcall(function()
+                for _, ui in ipairs(PlayerGui:GetChildren()) do
+                    if ui:IsA("ScreenGui") and ui.Name ~= "Rayfield" then
+                        local mainPopup = ui:FindFirstChild("PopupFrame") or ui:FindFirstChild("Confirmation") or ui:FindFirstChild("MainPopup")
+                        if mainPopup and mainPopup.Visible == true then
+                            mainPopup.Visible = false
+                        end
+                    end
+                end
+            end)
+        end
+        task.wait(0.4)
+    end
+end)
+
+-- 1. Auto Lift Toggle
+MainTab:CreateToggle({
+   Name = "Auto Lift Weights",
+   CurrentValue = false,
+   Callback = function(state)
+        getgenv().HyperLiftActive = state
+        if getgenv().HyperLiftActive then
+            task.spawn(function()
+                while getgenv().HyperLiftActive do
+                    autoEquipTool("Weight")
+                    for i = 1, batchSize do
+                        if not getgenv().HyperLiftActive then break end
+                        task.spawn(function() ActivateTool:InvokeServer("Weight") end)
+                    end
+                    task.wait(waitTime > 0 and waitTime or nil)
+                end
+            end)
+        end
+   end,
+})
+
+-- 2. Auto Punch Toggle
+MainTab:CreateToggle({
+   Name = "Auto Punch Fists",
+   CurrentValue = false,
+   Callback = function(state)
+        getgenv().HyperPunchActive = state
+        if getgenv().HyperPunchActive then
+            task.spawn(function()
+                while getgenv().HyperPunchActive do
+                    autoEquipTool("Fists")
+                    
+                    local char = LocalPlayer.Character
+                    if char then
+                        local hum = char:FindFirstChildOfClass("Humanoid")
+                        local anim = hum and hum:FindFirstChildOfClass("Animator")
+                        if anim then
+                            local animInstance = Instance.new("Animation")
+                            animInstance.AnimationId = "rbxassetid://10461623916"
+                            local track = anim:LoadAnimation(animInstance)
+                            track:Play()
+                        end
+                    end
+
+                    for i = 1, batchSize do
+                        if not getgenv().HyperPunchActive then break end
+                        task.spawn(function() ActivateTool:InvokeServer("Fists") end)
+                    end
+                    task.wait(waitTime > 0 and waitTime or nil)
+                end
+            end)
+        end
+   end,
+})
+
+-- 3. FIXED Muscle King Gym Deadlift Toggle
+MainTab:CreateToggle({
+   Name = "Auto Deadlift (Muscle King)",
+   CurrentValue = false,
+   Callback = function(state)
+        getgenv().HyperDeadliftActive = state
+        if getgenv().HyperDeadliftActive then
+            task.spawn(function()
+                -- Wait for the machine target to load in workspace safely
+                local success, targetMachine = pcall(function()
+                    return workspace:WaitForChild("Machines"):WaitForChild("Deadlifts"):WaitForChild("Muscle King Gym"):WaitForChild("5.1")
+                end)
+
+                if success and targetMachine then
+                    -- Send the mandatory Interact signal first to use the machine
+                    MachineRemote:FireServer("Interact", targetMachine)
+                    task.wait(0.1) -- Small delay to confirm server registered the interaction
+
+                    -- Spam loop for Rep signals
+                    while getgenv().HyperDeadliftActive do
+                        for i = 1, batchSize do
+                            if not getgenv().HyperDeadliftActive then break end
+                            task.spawn(function() 
+                                MachineRemote:FireServer("Rep", targetMachine) 
+                            end)
+                        end
+                        task.wait(waitTime > 0 and waitTime or nil)
+                    end
+                else
+                    Rayfield:Notify({
+                        Name = "Error",
+                        Content = "Muscle King Gym 5.1 Deadlift machine not found!",
+                        Duration = 5
+                    })
+                end
+            end)
+        end
+   end,
+})
+
+-- 4. Auto Rebirth Toggle
+MainTab:CreateToggle({
+   Name = "Auto Rebirth",
+   CurrentValue = false,
+   Callback = function(state)
+        getgenv().HyperRebirthActive = state
+        if getgenv().HyperRebirthActive then
+            task.spawn(function()
+                while getgenv().HyperRebirthActive do
+                    RebirthRemote:FireServer()
+                    task.wait(1)
+                end
+            end)
+        end
+   end,
+})
+
+-- 5. Popups Blocker Toggle
+MainTab:CreateToggle({
+   Name = "Hide Game Popups",
+   CurrentValue = false,
+   Callback = function(state)
+        getgenv().HidePopupsActive = state
+   end,
+})
+
+-- 6. Anti-Lag Performance Toggle
+MainTab:CreateToggle({
+   Name = "Anti-Lag: Safe Mode",
+   CurrentValue = true,
+   Callback = function(state)
+        getgenv().SmoothMode = state
+        if getgenv().SmoothMode then
+            batchSize = 15
+            waitTime = 0.01
+        else
+            batchSize = 45
+            waitTime = 0
+        end
+   end,
+})
+
+Rayfield:Notify({
+   Name = "Script Loaded!",
+   Content = "HyperTrain Muscle Legends is ready targeting Muscle King.",
+   Duration = 5,
+   Image = 4483362458,
+})
