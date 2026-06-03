@@ -482,159 +482,119 @@ _MiscV2:AddSwitch('Hide All frame', function(p1270)
     end
 end)
 
-_MiscV2:AddButton('Anti Lag (Advanced)', function()
-		local v1211, v1212, v1213 = pairs(game:GetDescendants())
-		while true do
-			local v1214
-			v1213, v1214 = v1211(v1212, v1213)
-			if v1213 == nil then
-				break
-			end
-			if v1214:IsA('Decal') or v1214:IsA('Texture') then
-				v1214:Destroy()
-			end
-		end
-		local _Terrain = workspace:FindFirstChildOfClass('Terrain')
-		if _Terrain then
-			_Terrain.WaterWaveSize = 0
-			_Terrain.WaterWaveSpeed = 0
-			_Terrain.WaterReflectance = 0
-			_Terrain.WaterTransparency = 1
-			_Terrain.Decorations = false
-		end
-		local v1216, v1217, v1218 = pairs(workspace:GetDescendants())
-		while true do
-			local v1219
-			v1218, v1219 = v1216(v1217, v1218)
-			if v1218 == nil then
-				break
-			end
-			if v1219:IsA('Explosion') or v1219:IsA('Debris') then
-				v1219:Destroy()
-			elseif v1219:IsA('BasePart') and v1219.Name:lower():find('debris') then
-				v1219:Destroy()
-			end
-		end
-		local v1220, v1221, v1222 = pairs(game:GetDescendants())
-		while true do
-			local v1223
-			v1222, v1223 = v1220(v1221, v1222)
-			if v1222 == nil then
-				break
-			end
-			if v1223:IsA('PointLight') or (v1223:IsA('SurfaceLight') or v1223:IsA('SpotLight')) then
-				v1223.Enabled = false
-			end
-		end
-		local v1224, v1225, v1226 = pairs(workspace:GetDescendants())
-		while true do
-			local v1227
-			v1226, v1227 = v1224(v1225, v1226)
-			if v1226 == nil then
-				break
-			end
-			if v1227:IsA('Sound') then
-				v1227:Stop()
-			end
-		end
-		print('Anti-Lag Activated: Textures, lighting, sounds, and effects removed.')
-	end)
+-- Add Button to Elerium UI
+tab:AddButton("Anti-Lag", function()
+    -- Services
+    local debris = game:GetService("Debris")
+    local lighting = game:GetService("Lighting")
+    local players = game:GetService("Players")
+    local runService = game:GetService("RunService")
 
-	_MiscV2:AddButton('Ultra FPS Booster', function()
-		settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-		settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
-		settings().Rendering.EagerBulkExecution = true
-		settings().Rendering.ReloadAssets = false
-		local _Lighting3 = game:GetService('Lighting')
-		_Lighting3.GlobalShadows = false
-		_Lighting3.FogEnd = 10000000000
-		_Lighting3.Brightness = 0
-		_Lighting3.EnvironmentDiffuseScale = 0
-		_Lighting3.EnvironmentSpecularScale = 0
-		local v1229, v1230, v1231 = ipairs(game:GetDescendants())
-		while true do
-			local v1232
-			v1231, v1232 = v1229(v1230, v1231)
-			if v1231 == nil then
-				break
-			end
-			if v1232:IsA('ParticleEmitter') or (v1232:IsA('Trail') or (v1232:IsA('Smoke') or (v1232:IsA('Fire') or v1232:IsA('Sparkles')))) then
-				v1232:Destroy()
-			elseif v1232:IsA('PointLight') or (v1232:IsA('SpotLight') or v1232:IsA('SurfaceLight')) then
-				v1232.Enabled = false
-			end
-		end
-		local v1233, v1234, v1235 = pairs(game:GetDescendants())
-		while true do
-			local v1236
-			v1235, v1236 = v1233(v1234, v1235)
-			if v1235 == nil then
-				break
-			end
-			if v1236:IsA('Sound') then
-				v1236:Stop()
-				v1236.Volume = 0
-			end
-		end
-		local v1237, v1238, v1239 = ipairs(game:GetDescendants())
-		while true do
-			local v1240
-			v1239, v1240 = v1237(v1238, v1239)
-			if v1239 == nil then
-				break
-			end
-			if v1240:IsA('Decal') or v1240:IsA('Texture') then
-				v1240:Destroy()
-			end
-		end
-		local _Terrain2 = workspace:FindFirstChildOfClass('Terrain')
-		if _Terrain2 then
-			_Terrain2.WaterWaveSize = 0
-			_Terrain2.WaterWaveSpeed = 0
-			_Terrain2.WaterReflectance = 0
-			_Terrain2.WaterTransparency = 1
-			_Terrain2.Decorations = false
-		end
-		local _LocalPlayer60 = game.Players.LocalPlayer
-		local _PlayerGui3 = _LocalPlayer60:FindFirstChild('PlayerGui')
-		if _PlayerGui3 then
-			local v1244, v1245, v1246 = ipairs(_PlayerGui3:GetDescendants())
-			while true do
-				local v1247
-				v1246, v1247 = v1244(v1245, v1246)
-				if v1246 == nil then
-					break
-				end
-				if v1247:IsA('TextLabel') or (v1247:IsA('ImageLabel') or v1247:IsA('ImageButton')) then
-					v1247.Visible = false
-				end
-			end
-		end
-		local v1248, v1249, v1250 = ipairs(_LocalPlayer60.Character:GetChildren())
-		while true do
-			local v1251
-			v1250, v1251 = v1248(v1249, v1250)
-			if v1250 == nil then
-				break
-			end
-			if v1251:IsA('Accessory') or v1251:IsA('Clothing') then
-				v1251:Destroy()
-			end
-		end
-		local _Humanoid8 = _LocalPlayer60.Character:FindFirstChildWhichIsA('Humanoid')
-		if _Humanoid8 then
-			local v1253, v1254, v1255 = pairs(_Humanoid8:GetPlayingAnimationTracks())
-			while true do
-				local v1256
-				v1255, v1256 = v1253(v1254, v1255)
-				if v1255 == nil then
-					break
-				end
-				v1256:Stop()
-			end
-		end
-		print('Ultra FPS Boost applied. Maximum rendering and resource optimization complete.')
-	end)
+    -- Settings
+    local maxDebrisTime = 5 -- Max time before debris is removed
+    local partLimitPerPlayer = 500 -- Max parts per player
+    local maxParts = 5000 -- Max total parts allowed in workspace
+    local physicsThrottle = Enum.PhysicsSimulationRate.Fixed240Hz -- Reduce physics complexity
+
+    -- Function to check if a part is part of a player's character
+    local function isPartOfPlayerCharacter(part)
+        if part:IsDescendantOf(players) then
+            return true
+        end
+        for _, player in pairs(players:GetPlayers()) do
+            if player.Character and part:IsDescendantOf(player.Character) then
+                return true
+            end
+        end
+        return false
+    end
+
+    -- Function to clean unanchored parts (but ignore player parts)
+    local function cleanUpUnanchoredParts()
+        while true do
+            wait(2)
+            for _, part in pairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") and not part.Anchored and not isPartOfPlayerCharacter(part) then
+                    debris:AddItem(part, maxDebrisTime)
+                end
+            end
+        end
+    end
+
+    -- Function to reduce part count per player (without removing character parts)
+    local function limitPartCountForPlayers()
+        while true do
+            wait(5)
+            for _, player in pairs(players:GetPlayers()) do
+                local totalParts = 0
+                if player.Character and player.Character.Parent then
+                    for _, part in pairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            totalParts = totalParts + 1
+                        end
+                    end
+                end
+                if totalParts > partLimitPerPlayer then
+                    -- Do not remove parts of the player's character
+                    for _, part in pairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") and not isPartOfPlayerCharacter(part) then
+                            debris:AddItem(part, maxDebrisTime)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Function to globally reduce part count in the workspace (excluding player parts)
+    local function limitGlobalPartCount()
+        while true do
+            wait(10)
+            local totalParts = 0
+            for _, part in pairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") and not isPartOfPlayerCharacter(part) then
+                    totalParts = totalParts + 1
+                end
+            end
+
+            if totalParts > maxParts then
+                for _, part in pairs(workspace:GetDescendants()) do
+                    if part:IsA("BasePart") and not part.Anchored and not isPartOfPlayerCharacter(part) then
+                        debris:AddItem(part, maxDebrisTime)
+                    end
+                end
+            end
+        end
+    end
+
+    -- Optimize Lighting (removes shadows, sets clock to static time to reduce resource usage)
+    local function optimizeLighting()
+        lighting.GlobalShadows = false
+        lighting.ClockTime = 12 -- Set to a fixed time (no dynamic lighting)
+    end
+
+    -- Physics Optimization
+    local function optimizePhysics()
+        settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Default
+        settings().Physics.AllowSleep = true -- Allow parts to 'sleep' when stationary
+        runService.Stepped:Connect(function()
+            settings().Physics.PhysicsSimulationRate = physicsThrottle
+        end)
+    end
+
+    -- Optimize memory usage by cleaning up unused instances
+    local function optimizeMemory()
+        game:GetService("GarbageCollectorService"):RequestGarbageCollection() -- Force garbage collection
+    end
+
+    -- Main optimization execution
+    task.spawn(cleanUpUnanchoredParts)       
+    task.spawn(limitPartCountForPlayers)     
+    task.spawn(limitGlobalPartCount)         
+    optimizeLighting()                  
+    optimizePhysics()                   
+    optimizeMemory()                    
+end)
 
 -- Create Tab
 local egg = window:AddTab("Eggs")
