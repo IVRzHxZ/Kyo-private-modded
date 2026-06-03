@@ -156,13 +156,25 @@ _Rebirthing:AddSwitch("Auto Lift Weights", function(state)
     end
 end)
 
+local sizeLoop = false
+
 _Rebirthing:AddSwitch("Auto size 2", function(Value)
-    if Value then
-        local args = {
-            "Change_Size",
-            2
-        }
-        game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Remotes"):WaitForChild("Change_Setting"):FireServer(unpack(args))
+    sizeLoop = Value
+    if sizeLoop then
+        task.spawn(function()
+            while sizeLoop do
+                local args = {
+                    "Change_Size",
+                    2
+                }
+                game:GetService("ReplicatedStorage")
+                    :WaitForChild("Events")
+                    :WaitForChild("Remotes")
+                    :WaitForChild("Change_Setting")
+                    :FireServer(unpack(args))
+                task.wait(0.5) -- Adjust this delay based on how fast the game allows changes
+            end
+        end)
     end
 end)
 
@@ -485,11 +497,21 @@ end)
 -- Create Tab
 local egg = window:AddTab("Eggs")
 
+local openLoop = false
+
 egg:AddSwitch("Open Galaxy Oracle Crystal", function(Value)
-    if Value then
-        local args = {
-            "Galaxy Oracle Crystal"
-        }
-        game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Functions"):WaitForChild("Open_Crystal"):InvokeServer(unpack(args))
+    openLoop = Value
+    if openLoop then
+        task.spawn(function()
+            while openLoop do
+                local args = { "Galaxy Oracle Crystal" }
+                game:GetService("ReplicatedStorage")
+                    :WaitForChild("Events")
+                    :WaitForChild("Functions")
+                    :WaitForChild("Open_Crystal")
+                    :InvokeServer(unpack(args))
+                task.wait(0.1) -- Prevents crashing; adjust delay as needed
+            end
+        end)
     end
 end)
