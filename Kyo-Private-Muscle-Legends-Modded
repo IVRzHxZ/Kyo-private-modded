@@ -6,33 +6,40 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/IVRzH
 	can_resize = false, -- true or false
 })
 
--- I-replace mo yung dating code na nilagay natin dito:
+-- I-replace mo yung lumang loop code gamit ito (Nasa ilalim pa rin ng library:AddWindow):
 task.spawn(function()
     local imgui = game:GetService("CoreGui"):WaitForChild("imgui", 10)
     if imgui then
-        -- Tatakbo ito nang ilang beses habang naglo-load ang mga tab mo
-        for i = 1, 20 do 
+        -- Patuloy nitong babantayan ang UI para maging black lahat ng bagong lalabas na elements
+        while task.wait(0.1) do 
             for _, element in pairs(imgui:GetDescendants()) do
-                -- 1. Ginagawang black ang Top Bar, Base, at Top images
+                -- 1. TOP BAR & BASE IMAGES (Pati window background)
                 if (element.Name == "Bar" and element:IsA("Frame")) or 
-                   (element.Name == "Base" or element.Name == "Top") and element:IsA("ImageLabel") then
-                    element.BackgroundColor3 = Color3.new(0, 0, 0)
-                    if element:IsA("ImageLabel") then element.ImageColor3 = Color3.new(0, 0, 0) end
+                   (element.Name == "Base" or element.Name == "Top" or element.Name == "Window") and element:IsA("ImageLabel") then
+                    if element:IsA("ImageLabel") then element.ImageColor3 = Color3.new(0, 0, 0) else element.BackgroundColor3 = Color3.new(0, 0, 0) end
                 
-                -- 2. Ginagawang black ang Tab Background at Tab Buttons
+                -- 2. TABS & TAB BUTTONS BACKGROUND
                 elseif element.Name == "TabSelection" or element.Name == "Tabs" or element.Name == "TabButtons" then
-                    if element:IsA("ImageLabel") then
+                    if element:IsA("ImageLabel") then element.ImageColor3 = Color3.new(0, 0, 0) else element.BackgroundColor3 = Color3.new(0, 0, 0) end
+                
+                -- 3. INTERIOR FRAMES NG TABS
+                elseif element:IsA("Frame") and (element.Parent.Name == "TabSelection" or element.Parent.Name == "Tabs") then
+                    element.BackgroundColor3 = Color3.new(0, 0, 0)
+                
+                -- 4. BUTTONS, DROPDOWNS, AT SWITCHES (TOGGLES) BACKGROUNDS
+                -- Sa Elerium, ang mga clickable areas ay gumagamit ng Prefabs, Frames, o ImageButtons
+                elseif element.Name == "Toggle" or element.Name == "Button" or element.Name == "Dropdown" or element.Name == "Prefabs" then
+                    if element:IsA("ImageLabel") or element:IsA("ImageButton") then
                         element.ImageColor3 = Color3.new(0, 0, 0)
                     elseif element:IsA("Frame") then
                         element.BackgroundColor3 = Color3.new(0, 0, 0)
                     end
                 
-                -- 3. Target ang mga inner frames ng tab containers
-                elseif element:IsA("Frame") and (element.Parent.Name == "TabSelection" or element.Parent.Name == "Tabs") then
+                -- 5. INNER CONTAINERS NG DROPDOWN AT ALIGNED ITEMS
+                elseif element:IsA("Frame") and (element.Parent.Name == "Dropdown" or element.Parent.Name == "Toggle" or element.Parent.Name == "Button") then
                     element.BackgroundColor3 = Color3.new(0, 0, 0)
                 end
             end
-            task.wait(0.1)
         end
     end
 end)
