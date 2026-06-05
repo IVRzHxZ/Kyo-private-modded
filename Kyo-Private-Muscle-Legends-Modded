@@ -6,39 +6,50 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/IVRzH
 	can_resize = false, -- true or false
 })
 
--- I-replace mo yung lumang loop code gamit ito (Nasa ilalim pa rin ng library:AddWindow):
 task.spawn(function()
-    local imgui = game:GetService("CoreGui"):WaitForChild("imgui", 10)
-    if imgui then
-        -- Patuloy nitong babantayan ang UI para maging black lahat ng bagong lalabas na elements
-        while task.wait(0.1) do 
-            for _, element in pairs(imgui:GetDescendants()) do
-                -- 1. TOP BAR & BASE IMAGES (Pati window background)
+    local coreGuiImgui = game:GetService("CoreGui"):WaitForChild("imgui", 10)
+    if coreGuiImgui then
+        while task.wait(0.05) do -- Mabilis na pagbabantay para walang makalusot na blue o gray
+            for _, element in pairs(coreGuiImgui:GetDescendants()) do
+                
+                -- 1. TOP BAR, BASE, TOP SLICES, & MAIN WINDOW BACKGROUND
                 if (element.Name == "Bar" and element:IsA("Frame")) or 
-                   (element.Name == "Base" or element.Name == "Top" or element.Name == "Window") and element:IsA("ImageLabel") then
-                    if element:IsA("ImageLabel") then element.ImageColor3 = Color3.new(0, 0, 0) else element.BackgroundColor3 = Color3.new(0, 0, 0) end
-                
-                -- 2. TABS & TAB BUTTONS BACKGROUND
-                elseif element.Name == "TabSelection" or element.Name == "Tabs" or element.Name == "TabButtons" then
-                    if element:IsA("ImageLabel") then element.ImageColor3 = Color3.new(0, 0, 0) else element.BackgroundColor3 = Color3.new(0, 0, 0) end
-                
-                -- 3. INTERIOR FRAMES NG TABS
-                elseif element:IsA("Frame") and (element.Parent.Name == "TabSelection" or element.Parent.Name == "Tabs") then
-                    element.BackgroundColor3 = Color3.new(0, 0, 0)
-                
-                -- 4. BUTTONS, DROPDOWNS, AT SWITCHES (TOGGLES) BACKGROUNDS
-                -- Sa Elerium, ang mga clickable areas ay gumagamit ng Prefabs, Frames, o ImageButtons
-                elseif element.Name == "Toggle" or element.Name == "Button" or element.Name == "Dropdown" or element.Name == "Prefabs" then
-                    if element:IsA("ImageLabel") or element:IsA("ImageButton") then
-                        element.ImageColor3 = Color3.new(0, 0, 0)
-                    elseif element:IsA("Frame") then
-                        element.BackgroundColor3 = Color3.new(0, 0, 0)
+                   (element.Name == "Base" or element.Name == "Top" or element.Name == "Window" or element.Name == "TabSelection") and element:IsA("ImageLabel") then
+                    if element:IsA("ImageLabel") then 
+                        element.ImageColor3 = Color3.fromRGB(0, 0, 0) 
+                    else 
+                        element.BackgroundColor3 = Color3.fromRGB(0, 0, 0) 
                     end
                 
-                -- 5. INNER CONTAINERS NG DROPDOWN AT ALIGNED ITEMS
-                elseif element:IsA("Frame") and (element.Parent.Name == "Dropdown" or element.Parent.Name == "Toggle" or element.Parent.Name == "Button") then
-                    element.BackgroundColor3 = Color3.new(0, 0, 0)
+                -- 2. TABS & TAB HOVERS BACKGROUND
+                elseif element.Name == "Tabs" or element.Name == "TabButtons" then
+                    if element:IsA("ImageLabel") then 
+                        element.ImageColor3 = Color3.fromRGB(0, 0, 0) 
+                    elseif element:IsA("Frame") then 
+                        element.BackgroundColor3 = Color3.fromRGB(0, 0, 0) 
+                    end
+                
+                -- 3. ADDBUTTON, ADDSWITCH (SWITCH/TOGGLE_2), & ADDDROPDOWN BACKGROUNDS
+                elseif element.Name == "Button" or element.Name == "Switch" or element.Name == "Dropdown" or element.Name == "Toggle_2" or element.Name == "Prefabs" then
+                    if element:IsA("ImageLabel") or element:IsA("ImageButton") then
+                        element.ImageColor3 = Color3.fromRGB(20, 20, 20) -- Sobrang madilim na gray para makikita pa rin ang shape ng buttons
+                    elseif element:IsA("Frame") then
+                        element.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                    end
+                
+                -- 4. DROPDOWN LIST AT MGA SELECTIONS (BOX / OBJECTS / DROPDOWNBUTTON)
+                elseif element.Name == "Objects" or element.Name == "DropdownButton" or element.Name == "Box" then
+                    if element:IsA("ImageLabel") or element:IsA("ImageButton") then
+                        element.ImageColor3 = Color3.fromRGB(15, 15, 15)
+                    elseif element:IsA("ScrollingFrame") or element:IsA("Frame") then
+                        element.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                    end
+                
+                -- 5. INNER LAYERS NG BUONG UI PANELS
+                elseif element:IsA("Frame") and (element.Parent.Name == "TabSelection" or element.Parent.Name == "Tabs" or element.Parent.Name == "Dropdown") then
+                    element.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                 end
+                
             end
         end
     end
