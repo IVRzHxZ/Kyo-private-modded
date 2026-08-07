@@ -1,109 +1,10 @@
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/IVRzHxZ/Kyo-UI-Library/refs/heads/main/Kyo-UI-LibraryxPrivate", true))()
 
-	local window = library:AddWindow("Kyo-Private-Modded", {
+	local window = library:AddWindow("RandomOnTop", {
 	main_color = Color3.fromRGB(0, 0, 0), -- Color
 	min_size = Vector2.new(600, 1000), -- Size of the gui
 	can_resize = false, -- true or false
 })
-
-task.spawn(function()
-    local imgui = game:GetService("CoreGui"):WaitForChild("imgui", 10)
-    if not imgui then return end
-
-    -- 🎨 EDITABLE COLORS
-    local BACKGROUND_COLOR = Color3.fromRGB(100, 100, 100) 
-    local TAB_COLOR = Color3.fromRGB(0, 0, 0)     
-
-    -- 🔒 PERMANENTLY LOCKED COLORS
-    local BAR_COLOR = Color3.fromRGB(0, 0, 0)        
-
-    -- Function para kulayan ang UI nang mabilis at walang lag
-    local function colorAndLockElement(element)
-        -- Proteksyon para hindi ma-spam o ma-loop ang pag-kulay sa element na nagawa na
-        if element:GetAttribute("UI_Colored") then return end
-
-        local nameLower = element.Name:lower()
-        
-        -- EXCLUSION CRITERIA: Huwag galawin ang toggles at indicators
-        if nameLower:match("indicator") or nameLower:match("checkmark") or element.Name == "Toggle_2" or nameLower:match("toggle") then
-            return 
-        end
-
-        -- Helper function: Binabago lang ang kulay kung kailangan (Anti-Lag)
-        local function applyColor(property, targetColor)
-            if element[property] ~= targetColor then
-                element[property] = targetColor
-            end
-        end
-
-        -- 1. Deteksyon at Pag-kulay sa TABS
-        if nameLower:match("tab") and not nameLower:match("background") and not nameLower:match("frame") then
-            if element:IsA("ImageLabel") or element:IsA("ImageButton") then
-                applyColor("ImageColor3", TAB_COLOR)
-            elseif element:IsA("Frame") or element:IsA("TextButton") or element:IsA("TextBox") then
-                applyColor("BackgroundColor3", TAB_COLOR)
-            end
-            element:SetAttribute("UI_Colored", true)
-            return 
-        end
-
-        -- 2. Pag-lock sa kulay ng BARS at LINES
-        if nameLower:match("bar") or nameLower:match("line") then
-            if element:IsA("ImageLabel") or element:IsA("ImageButton") then
-                applyColor("ImageColor3", BAR_COLOR)
-            elseif element:IsA("Frame") or element:IsA("TextButton") or element:IsA("TextBox") then
-                applyColor("BackgroundColor3", BAR_COLOR)
-            end
-            element:SetAttribute("UI_Colored", true)
-            return 
-        end
-
-        -- 3. Kulay ng Main Backgrounds at Frames
-        if element:IsA("ImageLabel") or element:IsA("ImageButton") then
-            if nameLower:match("roundify") or nameLower:match("background") or nameLower:match("frame") then
-                applyColor("ImageColor3", BACKGROUND_COLOR)
-            else
-                if element:IsA("ImageButton") then
-                    applyColor("BackgroundColor3", BACKGROUND_COLOR)
-                end
-            end
-        elseif element:IsA("Frame") or element:IsA("TextButton") or element:IsA("TextBox") then
-            if nameLower:match("frame") or nameLower:match("background") then
-                applyColor("BackgroundColor3", BACKGROUND_COLOR) 
-            end
-        end
-        
-        -- 4. Kulay ng mga Text (Inaalis ang asul)
-        if element:IsA("TextLabel") or element:IsA("TextButton") or element:IsA("TextBox") then
-            if element.TextColor3 == Color3.fromRGB(0, 0, 255) or (element.TextColor3.B > 0.7 and element.TextColor3.R < 0.3) or nameLower:match("tab") then
-                applyColor("TextColor3", Color3.fromRGB(255, 255, 255))
-            end
-        end
-        
-        -- 5. Kulay ng SelectionBox o Highlight
-        if element:IsA("SelectionBox") or element:IsA("Highlight") then
-            if element:IsA("SelectionBox") then
-                applyColor("Color3", BACKGROUND_COLOR)
-            elseif element:IsA("Highlight") then
-                applyColor("FillColor", BACKGROUND_COLOR)
-                applyColor("OutlineColor", BAR_COLOR)
-            end
-        end
-
-        -- Markahan ang element para hindi na ulit balikan ng script
-        element:SetAttribute("UI_Colored", true)
-    end
-
-    -- Kulayan ang mga kasalukuyang elements gamit ang task.defer para sa mas swabeng load
-    for _, element in pairs(imgui:GetDescendants()) do
-        task.defer(colorAndLockElement, element)
-    end
-
-    -- Bantayan ang mga bagong pasok (dropdowns/tabs) gamit ang task.defer para iwas FPS drop
-    imgui.DescendantAdded:Connect(function(element)
-        task.defer(colorAndLockElement, element)
-    end)
-end)
 
 -- Create Tab
 local MainTab = window:AddTab("Farm")
@@ -318,100 +219,53 @@ _Rebirthing:AddSwitch("Auto Rebirths", function(state)
     end
 end)
 
-_Rebirthing:AddSwitch('Fast Rebirth', function(p52)
-    fastRebirth = p52
-    if fastRebirth then
+local TargetCFrame = CFrame.new(6684.76709, 3.61987972, 369.925629, -0.514484644, -1.32363098e-07, 0.857499659, -4.89967897e-06, 1, -2.75858588e-06, -0.85749948, -5.65477603e-06, -0.514484763)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Player = game:GetService("Players").LocalPlayer
+
+local LoopActive = false
+
+-- Safe remote retrieval to prevent infinite yielding thread locks
+local eventsFolder = ReplicatedStorage:FindFirstChild("Events")
+local functionsFolder = eventsFolder and eventsFolder:FindFirstChild("Functions")
+local UseCodeEvent = functionsFolder and functionsFolder:FindFirstChild("Use_Code")
+
+local lastEventTrigger = 0
+local triggerCooldown = 5 -- Cooldown in seconds
+
+_Rebirthing:AddSwitch("Fast Rebirths", function(state)
+    LoopActive = state
+    
+    if LoopActive then
+        -- Teleport & Event Loop
         task.spawn(function()
-            local _ReplicatedStorage = game:GetService('ReplicatedStorage')
-            local _LocalPlayer4 = game:GetService('Players').LocalPlayer
-            
-            local function u64()
-                local _petsFolder = _LocalPlayer4:FindFirstChild('petsFolder')
-                if _petsFolder then
-                    for _, v59 in pairs(_petsFolder:GetChildren()) do
-                        if v59:IsA('Folder') then
-                            for _, v63 in pairs(v59:GetChildren()) do
-                                _ReplicatedStorage.rEvents.equipPetEvent:FireServer('unequipPet', v63)
-                            end
-                        end
+            while LoopActive do
+                local Character = Player.Character
+                local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
+                
+                if RootPart then
+                    RootPart.CFrame = TargetCFrame
+                end
+
+                -- Periodic Server Event Call (with safety validation)
+                if UseCodeEvent then
+                    local currentTime = os.clock()
+                    if currentTime - lastEventTrigger >= triggerCooldown then
+                        lastEventTrigger = currentTime
+                        
+                        task.spawn(function()
+                            pcall(function()
+                                UseCodeEvent:InvokeServer("Ultimates")
+                            end)
+                        end)
                     end
                 end
+                
                 task.wait(0.1)
-            end
-            
-            local function v70(p65)
-                u64()
-                task.wait(0.01)
-                if _LocalPlayer4:FindFirstChild('petsFolder') and _LocalPlayer4.petsFolder:FindFirstChild('Unique') then
-                    for _, v69 in pairs(_LocalPlayer4.petsFolder.Unique:GetChildren()) do
-                        if v69.Name == p65 then
-                            _ReplicatedStorage.rEvents.equipPetEvent:FireServer('equipPet', v69)
-                        end
-                    end
-                end
-            end
-            
-            local function v78(p72)
-                local v73 = workspace:FindFirstChild('machinesFolder') and workspace.machinesFolder:FindFirstChild(p72)
-                if not v73 then
-                    for _, v77 in pairs(workspace:GetChildren()) do
-                        if v77:IsA('Folder') and v77.Name:find('machines') then
-                            v73 = v77:FindFirstChild(p72)
-                            if v73 then break end
-                        end
-                    end
-                end
-                return v73
-            end
-            
-            local function v80()
-                local _VirtualInputManager = game:GetService('VirtualInputManager')
-                _VirtualInputManager:SendKeyEvent(true, 'E', false, game)
-                task.wait(0.1)
-                _VirtualInputManager:SendKeyEvent(false, 'E', false, game)
-            end
-            
-            while fastRebirth do
-                local v81 = 10000 + 5000 * _LocalPlayer4.leaderstats.Rebirths.Value
-                if _LocalPlayer4:FindFirstChild('ultimatesFolder') and _LocalPlayer4.ultimatesFolder:FindFirstChild('Golden Rebirth') then
-                    local _Value = _LocalPlayer4.ultimatesFolder['Golden Rebirth'].Value
-                    v81 = math.floor(v81 * (1 - _Value * 0.1))
-                end
-                
-                u64()
-                task.wait(0.1)
-                v70('Swift Samurai')
-                
-                while _LocalPlayer4.leaderstats.Strength.Value < v81 do
-                    for _ = 1, 15 do
-                        _LocalPlayer4.muscleEvent:FireServer('rep')
-                    end
-                    task.wait()
-                end
-                
-                u64()
-                task.wait(0.1)
-                v70('Tribal Overlord')
-                
-                local _JungleBarLift = v78('Jungle Bar Lift')
-                if _JungleBarLift and _JungleBarLift:FindFirstChild('interactSeat') then
-                    _LocalPlayer4.Character.HumanoidRootPart.CFrame = _JungleBarLift.interactSeat.CFrame * CFrame.new(0, 3, 0)
-                    repeat
-                        task.wait(0.1)
-                        v80()
-                    until _LocalPlayer4.Character.Humanoid.Sit
-                end
-                
-                local _Value2 = _LocalPlayer4.leaderstats.Rebirths.Value
-                repeat
-                    _ReplicatedStorage.rEvents.rebirthRemote:InvokeServer('rebirthRequest')
-                    task.wait(0.1)
-                until _Value2 < _LocalPlayer4.leaderstats.Rebirths.Value
-                task.wait()
             end
         end)
     end
-end):Set(false)
+end)
 
 local _Teleport = window:AddTab('Teleport')
 
